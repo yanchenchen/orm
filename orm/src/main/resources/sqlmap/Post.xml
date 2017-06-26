@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiewang.dao.blog.PostDao">
+
+	<sql id="QUERY_COLUMN_LIST">
+		<![CDATA[id,author_id,blog_id, subject]]>
+	</sql>
+
+	<sql id="QUERY_FROM_TABLE"><![CDATA[FROM Post]]></sql>
+	
+	<!-- 全部条件(更多功能可以通过queryData扩展实现)  -->
+	<sql id="QUERY_WHERE_CLAUSE">
+		<where>
+			<if test="id != null and id != ''"><![CDATA[AND id = #{id}]]></if>
+			<if test="author != null"><![CDATA[AND author_id = #{author.id}]]></if>
+			<if test="blog_id != null and blog_id != ''"><![CDATA[AND blog_id = #{blog_id}]]></if>
+			<if test="subject != null and subject != ''"><![CDATA[AND subject = #{subject}]]></if>
+		</where>
+	</sql>
+
+	<!-- 更新列字段,只要不为NULL则更新,除开主键列 -->
+	<sql id="UPDATE_COLUMN_SET">
+		<set>
+			<if test="author != null"><![CDATA[author_id = #{author.id},]]></if>
+			<if test="blog_id != null"><![CDATA[blog_id = #{blog_id},]]></if>
+			<if test="subject != null"><![CDATA[subject = #{subject},]]></if>
+		</set>
+	</sql>
+
+	<insert id="insertEntry" parameterType="Post" useGeneratedKeys="true" keyProperty="id" >
+		<![CDATA[
+			INSERT INTO Post (id,author_id,blog_id,subject)
+			VALUES (#{id},#{author.id},#{blog_id},#{subject})
+		]]>
+	</insert>
+
+	<!-- 删除记录,通过主键-->
+	<delete id="deleteByKey" parameterType="java.lang.Object" >
+		<![CDATA[DELETE FROM Post ]]>
+		<![CDATA[WHERE id = #{_parameter}]]>
+	</delete>
+
+	<!-- 删除,通过条件 -->
+	<update id="deleteByCondition" parameterType="Post" >
+		<![CDATA[DELETE FROM Post]]>
+		<include refid="QUERY_WHERE_CLAUSE"/>
+	</update>
+
+	<!-- 修改记录 通过主键 -->
+	<update id="updateByKey" parameterType="Post" >
+		<![CDATA[UPDATE Post]]>
+		<include refid="UPDATE_COLUMN_SET"/>
+		<![CDATA[WHERE id = #{id}]]>
+	</update>
+
+    <select id="selectComments" resultType="Comment">
+        select commentId as id
+        from PostComments
+        where postId = #{id}
+    </select>
+
+    <resultMap id="postResult" type="Post">
+        <id property="id" column="id" />
+        <result property="blog_id" column="blog_id"/>
+        <result property="subject" column="subject"/>
+        <association property="author" javaType="Author">
+            <id property="id" column="author_id"/>
+        </association>
+        <collection property="comments" column="id" javaType="ArrayList" ofType="Comment" select="selectComments"/>
+    </resultMap>
+
+	<!-- 查询,通过主键 -->
+	<select id="selectEntryByKey" parameterType="java.lang.Object" resultMap="postResult">
+		<![CDATA[SELECT]]>
+		<include refid="QUERY_COLUMN_LIST"/>
+		<include refid="QUERY_FROM_TABLE"/>
+        <![CDATA[WHERE id = #{_parameter}]]>
+	</select>
+
+	<!-- 查询,通过条件 -->
+	<select id="selectEntryList" parameterType="Post" resultMap="postResult">
+		<![CDATA[SELECT]]>
+		<include refid="QUERY_COLUMN_LIST"/>
+		<include refid="QUERY_FROM_TABLE"/>
+		<include refid="QUERY_WHERE_CLAUSE"/>
+	</select>
+
+	<!-- 总数查询,通过条件 -->
+	<select id="selectEntryListCount" parameterType="Post" resultType="int">
+		<![CDATA[SELECT COUNT(id) AS dataCount]]>
+		<include refid="QUERY_FROM_TABLE"/>
+		<include refid="QUERY_WHERE_CLAUSE"/>
+	</select>
+	
+	<!-- 其它SQL语句 -->
+
+</mapper>

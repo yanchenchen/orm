@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiewang.dao.blog.CommentDao">
+
+	<sql id="QUERY_COLUMN_LIST">
+		<![CDATA[id,commentTwo]]>
+	</sql>
+
+	<sql id="QUERY_FROM_TABLE"><![CDATA[FROM CommentTwo]]></sql>
+	
+	<!-- 全部条件(更多功能可以通过queryData扩展实现)  -->
+	<sql id="QUERY_WHERE_CLAUSE">
+		<where>
+			<if test="id != null and id != ''"><![CDATA[AND id = #{id}]]></if>
+			<if test="commentTwo != null and commentTwo != ''"><![CDATA[AND commentTwo = #{commentTwo}]]></if>
+		</where>
+	</sql>
+
+	<!-- 更新列字段,只要不为NULL则更新,除开主键列 -->
+	<sql id="UPDATE_COLUMN_SET">
+		<set>
+			<if test="commentTwo != null"><![CDATA[commentTwo = #{commentTwo},]]></if>
+		</set>
+	</sql>
+
+	<insert id="insertEntry" parameterType="CommentTwo" useGeneratedKeys="false" keyProperty="id" >
+		<![CDATA[
+			INSERT INTO CommentTwo (id,commentTwo)
+			VALUES (#{id},#{commentTwo})
+		]]>
+	</insert>
+
+	<!-- 删除记录,通过主键-->
+	<delete id="deleteByKey" parameterType="java.lang.Object" >
+		<![CDATA[DELETE FROM CommentTwo ]]>
+		<![CDATA[WHERE id = #{_parameter}]]>
+	</delete>
+
+	<!-- 删除,通过条件 -->
+	<update id="deleteByCondition" parameterType="CommentTwo" >
+		<![CDATA[DELETE FROM CommentTwo]]>
+		<include refid="QUERY_WHERE_CLAUSE"/>
+	</update>
+
+	<!-- 修改记录 通过主键 -->
+	<update id="updateByKey" parameterType="CommentTwo" >
+		<![CDATA[UPDATE CommentTwo]]>
+		<include refid="UPDATE_COLUMN_SET"/>
+		<![CDATA[WHERE id = #{id}]]>
+	</update>
+
+
+    <resultMap id="commentTwoResult" type="CommentTwo">
+        <id property="id" column="id" />
+        <result property="commentTwo" column="commentTwo"/>
+    </resultMap>
+
+	<!-- 查询,通过主键 -->
+	<select id="selectEntryByKey" parameterType="java.lang.Object" resultMap="commentTwoResult">
+		<![CDATA[SELECT]]>
+		<include refid="QUERY_COLUMN_LIST"/>
+		<include refid="QUERY_FROM_TABLE"/>
+        <![CDATA[WHERE id = #{_parameter}]]>
+	</select>
+
+	<!-- 查询,通过条件 -->
+	<select id="selectEntryList" parameterType="CommentTwo" resultMap="commentTwoResult">
+		<![CDATA[SELECT]]>
+		<include refid="QUERY_COLUMN_LIST"/>
+		<include refid="QUERY_FROM_TABLE"/>
+		<include refid="QUERY_WHERE_CLAUSE"/>
+	</select>
+
+	<!-- 总数查询,通过条件 -->
+	<select id="selectEntryListCount" parameterType="CommentTwo" resultType="int">
+		<![CDATA[SELECT COUNT(id) AS dataCount]]>
+		<include refid="QUERY_FROM_TABLE"/>
+		<include refid="QUERY_WHERE_CLAUSE"/>
+	</select>
+	
+	<!-- 其它SQL语句 -->
+
+</mapper>

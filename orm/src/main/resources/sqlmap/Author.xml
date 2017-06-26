@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiewang.dao.blog.AuthorDao">
+
+	<sql id="QUERY_COLUMN_LIST">
+		<![CDATA[id,userName,password, email]]>
+	</sql>
+
+	<sql id="QUERY_FROM_TABLE"><![CDATA[FROM Author]]></sql>
+	
+	<sql id="QUERY_WHERE_CLAUSE">
+		<where>
+			<if test="id != null and id != ''"><![CDATA[AND id = #{id}]]></if>
+			<if test="userName != null and userName != ''"><![CDATA[AND userName = #{userName}]]></if>
+			<if test="password != null and password != ''"><![CDATA[AND password = #{password}]]></if>
+			<if test="email != null and email != ''"><![CDATA[AND email = #{email}]]></if>
+		</where>
+	</sql>
+
+	<sql id="UPDATE_COLUMN_SET">
+		<set>
+			<if test="author != null"><![CDATA[author_id = #{author.id},]]></if>
+			<if test="userName != null"><![CDATA[userName = #{userName},]]></if>
+			<if test="password != null"><![CDATA[password = #{password},]]></if>
+			<if test="email != null"><![CDATA[email = #{email},]]></if>
+		</set>
+	</sql>
+
+	<insert id="insertEntry" parameterType="Author" useGeneratedKeys="true" keyProperty="id" >
+		<![CDATA[
+			INSERT INTO Author (id,userName,password,email)
+			VALUES (#{id},#{userName},#{password},#{email})
+		]]>
+	</insert>
+
+	<delete id="deleteByKey" parameterType="java.lang.Object" >
+		<![CDATA[DELETE FROM Author]]>
+		<![CDATA[WHERE id = #{_parameter}]]>
+	</delete>
+
+	<update id="deleteByCondition" parameterType="Author" >
+		<![CDATA[DELETE FROM Author]]>
+		<include refid="QUERY_WHERE_CLAUSE"/>
+	</update>
+
+	<update id="updateByKey" parameterType="Author" >
+		<![CDATA[UPDATE Author]]>
+		<include refid="UPDATE_COLUMN_SET"/>
+		<![CDATA[WHERE id = #{id}]]>
+	</update>
+
+    <resultMap id="authorResult" type="Author">
+        <id property="id" column="id" />
+        <result property="userName" column="userName"/>
+        <result property="password" column="password"/>
+        <result property="email" column="email"/>
+    </resultMap>
+
+	<select id="selectEntryByKey" parameterType="java.lang.Object" resultMap="authorResult">
+		<![CDATA[SELECT]]>
+		<include refid="QUERY_COLUMN_LIST"/>
+		<include refid="QUERY_FROM_TABLE"/>
+        <![CDATA[WHERE id = #{_parameter}]]>
+	</select>
+
+	<select id="selectEntryList" parameterType="Author" resultMap="authorResult">
+		<![CDATA[SELECT]]>
+		<include refid="QUERY_COLUMN_LIST"/>
+		<include refid="QUERY_FROM_TABLE"/>
+		<include refid="QUERY_WHERE_CLAUSE"/>
+	</select>
+
+	<select id="selectEntryListCount" parameterType="Author" resultType="int">
+		<![CDATA[SELECT COUNT(id) AS dataCount]]>
+		<include refid="QUERY_FROM_TABLE"/>
+		<include refid="QUERY_WHERE_CLAUSE"/>
+	</select>
+	
+</mapper>
