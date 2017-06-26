@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiewang.dao.blog.CommentDao">
+
+	<sql id="QUERY_COLUMN_LIST">
+		<![CDATA[id,post_id,name, comment]]>
+	</sql>
+
+	<sql id="QUERY_FROM_TABLE"><![CDATA[FROM Comment]]></sql>
+	
+	<!-- 全部条件(更多功能可以通过queryData扩展实现)  -->
+	<sql id="QUERY_WHERE_CLAUSE">
+		<where>
+			<if test="id != null and id != ''"><![CDATA[AND id = #{id}]]></if>
+			<if test="post_id != null and post_id != ''"><![CDATA[AND post_id = #{post_id}]]></if>
+			<if test="name != null and name != ''"><![CDATA[AND name = #{name}]]></if>
+			<if test="comment != null and comment != ''"><![CDATA[AND comment = #{comment}]]></if>
+		</where>
+	</sql>
+
+	<!-- 更新列字段,只要不为NULL则更新,除开主键列 -->
+	<sql id="UPDATE_COLUMN_SET">
+		<set>
+			<if test="name != null"><![CDATA[name = #{name},]]></if>
+			<if test="post_id != null"><![CDATA[post_id = #{post_id},]]></if>
+			<if test="comment != null"><![CDATA[comment = #{comment},]]></if>
+		</set>
+	</sql>
+
+	<insert id="insertEntry" parameterType="Comment" useGeneratedKeys="true" keyProperty="id" >
+		<![CDATA[
+			INSERT INTO Comment (id,name,post_id,comment)
+			VALUES (#{id},#{name},#{post_id},#{comment})
+		]]>
+	</insert>
+
+	<!-- 删除记录,通过主键-->
+	<delete id="deleteByKey" parameterType="java.lang.Object" >
+		<![CDATA[DELETE FROM Comment ]]>
+		<![CDATA[WHERE id = #{_parameter}]]>
+	</delete>
+
+	<!-- 删除,通过条件 -->
+	<update id="deleteByCondition" parameterType="Comment" >
+		<![CDATA[DELETE FROM Comment]]>
+		<include refid="QUERY_WHERE_CLAUSE"/>
+	</update>
+
+	<!-- 修改记录 通过主键 -->
+	<update id="updateByKey" parameterType="Comment" >
+		<![CDATA[UPDATE Comment]]>
+		<include refid="UPDATE_COLUMN_SET"/>
+		<![CDATA[WHERE id = #{id}]]>
+	</update>
+
+
+    <resultMap id="commentResult" type="Comment">
+        <id property="id" column="id" />
+        <result property="post_id" column="post_id"/>
+        <result property="comment" column="comment"/>
+        <result property="name" column="name"/>
+        <discriminator javaType="String" column="commentType">
+            <case value="C" resultType="Comment"/>
+            <case value="CO" resultType="CommentOne"/>
+            <case value="CT" resultType="CommentTwo"/>
+        </discriminator>
+    </resultMap>
+
+	<!-- 查询,通过主键 -->
+	<select id="selectEntryByKey" parameterType="java.lang.Object" resultMap="commentResult">
+		<![CDATA[SELECT]]>
+		<include refid="QUERY_COLUMN_LIST"/>
+		<include refid="QUERY_FROM_TABLE"/>
+        <![CDATA[WHERE id = #{_parameter}]]>
+	</select>
+
+	<!-- 查询,通过条件 -->
+	<select id="selectEntryList" parameterType="Comment" resultMap="commentResult">
+		<![CDATA[SELECT]]>
+		<include refid="QUERY_COLUMN_LIST"/>
+		<include refid="QUERY_FROM_TABLE"/>
+		<include refid="QUERY_WHERE_CLAUSE"/>
+	</select>
+
+	<!-- 总数查询,通过条件 -->
+	<select id="selectEntryListCount" parameterType="Comment" resultType="int">
+		<![CDATA[SELECT COUNT(id) AS dataCount]]>
+		<include refid="QUERY_FROM_TABLE"/>
+		<include refid="QUERY_WHERE_CLAUSE"/>
+	</select>
+	
+	<!-- 其它SQL语句 -->
+
+</mapper>

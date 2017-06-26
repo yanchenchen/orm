@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiewang.dao.blog.CommentDao">
+
+	<sql id="QUERY_COLUMN_LIST">
+		<![CDATA[id,commentOne]]>
+	</sql>
+
+	<sql id="QUERY_FROM_TABLE"><![CDATA[FROM CommentOne]]></sql>
+	
+	<sql id="QUERY_WHERE_CLAUSE">
+		<where>
+			<if test="id != null and id != ''"><![CDATA[AND id = #{id}]]></if>
+			<if test="commentOne != null and commentOne != ''"><![CDATA[AND commentOne = #{commentOne}]]></if>
+		</where>
+	</sql>
+
+	<!-- 更新列字段,只要不为NULL则更新,除开主键列 -->
+	<sql id="UPDATE_COLUMN_SET">
+		<set>
+			<if test="commentOne != null"><![CDATA[commentOne = #{commentOne},]]></if>
+		</set>
+	</sql>
+
+	<insert id="insertEntry" parameterType="CommentOne" useGeneratedKeys="false" keyProperty="id" >
+		<![CDATA[
+			INSERT INTO CommentOne (id,commentOne)
+			VALUES (#{id},#{commentOne})
+		]]>
+	</insert>
+
+	<!-- 删除记录,通过主键-->
+	<delete id="deleteByKey" parameterType="java.lang.Object" >
+		<![CDATA[DELETE FROM CommentOne ]]>
+		<![CDATA[WHERE id = #{_parameter}]]>
+	</delete>
+
+	<!-- 删除,通过条件 -->
+	<update id="deleteByCondition" parameterType="CommentOne" >
+		<![CDATA[DELETE FROM CommentOne]]>
+		<include refid="QUERY_WHERE_CLAUSE"/>
+	</update>
+
+	<!-- 修改记录 通过主键 -->
+	<update id="updateByKey" parameterType="CommentOne" >
+		<![CDATA[UPDATE CommentOne]]>
+		<include refid="UPDATE_COLUMN_SET"/>
+		<![CDATA[WHERE id = #{id}]]>
+	</update>
+
+    <resultMap id="commentOneResult" type="CommentOne">
+        <id property="id" column="id" />
+        <result property="commentOne" column="commentOne"/>
+    </resultMap>
+
+	<!-- 查询,通过主键 -->
+	<select id="selectEntryByKey" parameterType="java.lang.Object" resultMap="commentOneResult">
+		<![CDATA[SELECT]]>
+		<include refid="QUERY_COLUMN_LIST"/>
+		<include refid="QUERY_FROM_TABLE"/>
+        <![CDATA[WHERE id = #{_parameter}]]>
+	</select>
+
+	<!-- 查询,通过条件 -->
+	<select id="selectEntryList" parameterType="CommentOne" resultMap="commentOneResult">
+		<![CDATA[SELECT]]>
+		<include refid="QUERY_COLUMN_LIST"/>
+		<include refid="QUERY_FROM_TABLE"/>
+		<include refid="QUERY_WHERE_CLAUSE"/>
+	</select>
+
+	<!-- 总数查询,通过条件 -->
+	<select id="selectEntryListCount" parameterType="CommentOne" resultType="int">
+		<![CDATA[SELECT COUNT(id) AS dataCount]]>
+		<include refid="QUERY_FROM_TABLE"/>
+		<include refid="QUERY_WHERE_CLAUSE"/>
+	</select>
+	
+	<!-- 其它SQL语句 -->
+
+</mapper>
